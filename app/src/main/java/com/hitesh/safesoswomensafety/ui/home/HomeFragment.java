@@ -1,6 +1,7 @@
 package com.hitesh.safesoswomensafety.ui.home;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
@@ -17,6 +18,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -121,7 +123,10 @@ public class HomeFragment extends Fragment implements LocationListener {
             double lat = location.getLatitude();
             double lon = location.getLongitude();
 
-            getCompleteAddress(lat, lon, msg, contactList);
+
+
+            msg = msg+"\nLocation: "+"http://maps.google.com/?q="+lat+","+lon;
+            sendSMS(contactList, msg);
         }
     }
 
@@ -144,31 +149,7 @@ public class HomeFragment extends Fragment implements LocationListener {
         //getCompleteAddress(lat, lon);
     }
 
-    private void getCompleteAddress(double latitude, double longitude, String msg, List<Contact> contactList) {
-        Geocoder geocoder;
-        List<Address> addresses;
-        geocoder = new Geocoder(getContext(), Locale.getDefault());
 
-        try {
-            addresses = geocoder.getFromLocation(latitude, longitude, 1); // Here 1 represent max location result to returned, by documents it recommended 1 to 5
-
-            String address = addresses.get(0).getAddressLine(0); // If any additional address line present than only, check with max available address lines by getMaxAddressLineIndex()
-            String city = addresses.get(0).getLocality();
-            String state = addresses.get(0).getAdminArea();
-            String country = addresses.get(0).getCountryName();
-            String postalCode = addresses.get(0).getPostalCode();
-            String knownName = addresses.get(0).getFeatureName();
-
-            Log.d("Address", address+" "+city+" "+state+" "+country+" "+postalCode);
-            String adrs =address+" "+city+" "+state+" "+country+" "+postalCode;
-            //Toast.makeText(getContext(), address+" "+city+" "+state+" "+country+" "+postalCode, Toast.LENGTH_SHORT).show();
-            msg = msg+"\nAddress: "+adrs;
-            sendSMS(contactList, msg);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-    }
 
     @Override
     public void onStatusChanged(String provider, int status, Bundle extras) {
@@ -191,14 +172,43 @@ public class HomeFragment extends Fragment implements LocationListener {
            try{
                SmsManager smsMgrVar = SmsManager.getDefault();
                smsMgrVar.sendTextMessage(contact.number, null, msg, null, null);
-               Toast.makeText(getContext(), "Message Sent", Toast.LENGTH_LONG).show();
+
            }
            catch (Exception ErrVar) {
                Toast.makeText(getContext(),ErrVar.getMessage().toString(),
                        Toast.LENGTH_LONG).show();
                ErrVar.printStackTrace();
            }
+           finally {
+                showCustomDialog();
+           }
        }
+    }
+
+    private void showCustomDialog() {
+        //before inflating the custom alert dialog layout, we will get the current activity viewgroup
+        ViewGroup viewGroup = getActivity().findViewById(android.R.id.content);
+
+        //then we will inflate the custom alert dialog xml that we created
+        View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.success_dialog, viewGroup, false);
+
+        Button btnOk = dialogView.findViewById(R.id.buttonOk);
+        //Now we need an AlertDialog.Builder object
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+
+        //setting the view of the builder to our custom view that we already inflated
+        builder.setView(dialogView);
+
+        //finally creating the alert dialog and displaying it
+        final AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+
+        btnOk.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                alertDialog.dismiss();
+            }
+        });
     }
 
 

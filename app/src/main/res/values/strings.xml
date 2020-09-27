@@ -9,5 +9,5 @@
 
     <string name="menu_home">Home</string>
     <string name="menu_gallery">Contact List</string>
-    <string name="menu_slideshow">Alter Message</string>
+    <string name="menu_slideshow">Alert Message</string>
 </resources>

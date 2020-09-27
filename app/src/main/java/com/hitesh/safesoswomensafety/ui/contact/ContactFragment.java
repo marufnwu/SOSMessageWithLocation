@@ -1,5 +1,6 @@
 package com.hitesh.safesoswomensafety.ui.contact;
 
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -10,6 +11,7 @@ import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -76,7 +78,7 @@ public class ContactFragment extends Fragment {
     }
 
     private void showAddDialog() {
-        Dialog dialog = new Dialog(getContext());
+        final Dialog dialog = new Dialog(getContext());
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setCancelable(true);
 
@@ -103,7 +105,8 @@ public class ContactFragment extends Fragment {
                     Paper.book().write("contact", contacts);
                     contactList.add(contact);
                     contactAdapter.notifyDataSetChanged();
-                    Toast.makeText(getContext(), "Contact Added", Toast.LENGTH_SHORT).show();
+                    dialog.dismiss();
+                    showCustomDialog();
                 }else {
                     Toast.makeText(getContext(), "All Fields Are Required", Toast.LENGTH_SHORT).show();
                 }
@@ -113,5 +116,32 @@ public class ContactFragment extends Fragment {
         dialog.show();
 
 
+    }
+
+    private void showCustomDialog() {
+        //before inflating the custom alert dialog layout, we will get the current activity viewgroup
+        ViewGroup viewGroup = getActivity().findViewById(android.R.id.content);
+
+        //then we will inflate the custom alert dialog xml that we created
+        View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.success_dialog, viewGroup, false);
+
+        Button btnOk = dialogView.findViewById(R.id.buttonOk);
+        TextView txtMsg = dialogView.findViewById(R.id.txtMsg);
+        //Now we need an AlertDialog.Builder object
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+
+        //setting the view of the builder to our custom view that we already inflated
+        builder.setView(dialogView);
+        txtMsg.setText("Emergency Contact Added");
+        //finally creating the alert dialog and displaying it
+        final AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+
+        btnOk.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                alertDialog.dismiss();
+            }
+        });
     }
 }

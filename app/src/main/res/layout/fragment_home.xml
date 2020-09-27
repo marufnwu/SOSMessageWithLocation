@@ -37,7 +37,7 @@
                 <TextView
                     android:textStyle="bold"
                     android:textSize="18sp"
-                    android:text="to see SOS alert"
+                    android:text="to send SOS alert"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"/>
             </LinearLayout>
