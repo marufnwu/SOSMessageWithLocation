@@ -117,16 +117,30 @@ public class HomeFragment extends Fragment implements LocationListener {
             return;
         }
 
-        Location location = locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, true));
+        List<String> providers = locationManager.getProviders(true);
+        Location bestLocation = null;
+         //location = locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, true));
+        for (String provider : providers) {
+            Location l = locationManager.getLastKnownLocation(provider);
+            if (l == null) {
+                continue;
+            }
+            if (bestLocation == null || l.getAccuracy() < bestLocation.getAccuracy()) {
+                // Found best last known location: %s", l);
+                bestLocation = l;
+            }
+        }
 
-        if (location!=null){
-            double lat = location.getLatitude();
-            double lon = location.getLongitude();
+        if (bestLocation!=null){
+            double lat = bestLocation.getLatitude();
+            double lon = bestLocation.getLongitude();
 
 
 
             msg = msg+"\nLocation: "+"http://maps.google.com/?q="+lat+","+lon;
             sendSMS(contactList, msg);
+        }else {
+            Toast.makeText(getContext(), "Location Null", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -172,7 +186,7 @@ public class HomeFragment extends Fragment implements LocationListener {
            try{
                SmsManager smsMgrVar = SmsManager.getDefault();
                smsMgrVar.sendTextMessage(contact.number, null, msg, null, null);
-
+               showCustomDialog();
            }
            catch (Exception ErrVar) {
                Toast.makeText(getContext(),ErrVar.getMessage().toString(),
@@ -180,7 +194,7 @@ public class HomeFragment extends Fragment implements LocationListener {
                ErrVar.printStackTrace();
            }
            finally {
-                showCustomDialog();
+                //showCustomDialog();
            }
        }
     }
